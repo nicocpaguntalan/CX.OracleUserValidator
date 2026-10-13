@@ -48,18 +48,9 @@ httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(
 var results = new List<ValidationResult>(users.Count);
 foreach (var user in users)
 {
-    try
-    {
-        var result = await ValidateUserAsync(httpClient, user);
-        results.Add(result);
-        Console.WriteLine($"{result.Username,-50} {result.StatusCode,5} {result.Status}");
-    }
-    catch (Exception ex)
-    {
-        var failedResult = new ValidationResult(user.Username, user.SourceFile, 0, "Error", ex.Message, DateTime.Now);
-        results.Add(failedResult);
-        Console.WriteLine($"{failedResult.Username,-50} {failedResult.StatusCode,5} {failedResult.Status}");
-    }
+    var result = await ValidateUserAsync(httpClient, user);
+    results.Add(result);
+    Console.WriteLine($"{result.Username,-50} {result.StatusCode,5} {result.Status}");
 }
 
 var outputPath = Path.Combine(usersDirectory, $"UserValidationResults-{DateTime.Now:yyyyMMdd-HHmmss}.csv");
@@ -92,7 +83,7 @@ static string? LoadBaseUrl(string directory, string environment)
         }
     }
 
-    return baseUrl;
+    return string.IsNullOrWhiteSpace(baseUrl) ? null : baseUrl.Trim();
 }
 
 static IEnumerable<UserCredential> ReadUsers(string path)
